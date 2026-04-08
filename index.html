@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AloAlo — Live Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   RESET & VARIABLES
+   ═══════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0A0A0B;
+  --surface: #141416;
+  --border: #1E1E22;
+  --accent: #FF5A1F;
+  --accent-glow: rgba(255, 90, 31, 0.25);
+  --text: #F5F5F5;
+  --text-muted: #6B6B7B;
+  --green: #22C55E;
+  --red: #EF4444;
+  --amber: #F59E0B;
+  --font-ui: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 28px;
+  --radius-sm: 14px;
+  --radius-xs: 8px;
+}
+
+html { background: var(--bg); color: var(--text); font-family: var(--font-ui); }
+body { min-height: 100vh; overflow-x: hidden; }
+button { font-family: var(--font-ui); cursor: pointer; border: none; outline: none; }
+
+/* ═══════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+   ═══════════════════════════════════════════ */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  70% { box-shadow: 0 0 0 12px rgba(255,90,31,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,90,31,0); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+}
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slide-down {
+  from { transform: translateY(-40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes spring-up {
+  0% { transform: translateY(100%); }
+  60% { transform: translateY(-8px); }
+  80% { transform: translateY(3px); }
+  100% { transform: translateY(0); }
+}
+@keyframes flame-flicker {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-3deg); }
+  50% { transform: scale(0.95) rotate(2deg); }
+  75% { transform: scale(1.08) rotate(-1deg); }
+}
+@keyframes scooter-move {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(160px); }
+}
+@keyframes checkmark-burst {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes number-up {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes green-flash {
+  0% { color: var(--green); text-shadow: 0 0 12px rgba(34,197,94,0.6); }
+  100% { color: var(--text); text-shadow: none; }
+}
+@keyframes glow-border {
+  0%, 100% { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+  50% { border-color: rgba(255,90,31,0.5); box-shadow: 0 0 8px rgba(255,90,31,0.1); }
+}
+@keyframes rider-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  50% { box-shadow: 0 0 0 8px rgba(255,90,31,0); }
+}
+@keyframes count-tick {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); color: var(--accent); }
+  100% { transform: scale(1); }
+}
+@keyframes bell-ring {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-14deg); }
+  45% { transform: rotate(8deg); }
+  60% { transform: rotate(-8deg); }
+  75% { transform: rotate(3deg); }
+  100% { transform: rotate(0); }
+}
+@keyframes progress-fill {
+  from { width: 0%; }
+}
+@keyframes badge-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ═══════════════════════════════════════════
+   TOP BAR
+   ═══════════════════════════════════════════ */
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 28px; background: #0D0D0F;
+  border-bottom: 1px solid var(--border); position: relative; z-index: 100;
+}
+.top-bar .brand {
+  font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+}
+.top-bar .right { display: flex; align-items: center; gap: 16px; }
+.live-badge {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--accent); padding: 6px 14px;
+  background: rgba(255,90,31,0.08); border-radius: 20px;
+  border: 1px solid rgba(255,90,31,0.2);
+}
+.live-badge .dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+.replay-btn {
+  display: none; padding: 6px 16px; font-size: 13px; font-weight: 600;
+  color: var(--accent); background: transparent;
+  border: 1px solid rgba(255,90,31,0.3); border-radius: 20px;
+  transition: all 0.2s ease;
+}
+.replay-btn:hover { background: rgba(255,90,31,0.1); border-color: var(--accent); }
+.replay-btn.visible { display: flex; align-items: center; gap: 6px; animation: fade-in 0.3s ease; }
+.reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+.reset-btn:hover {
+  color: var(--text);
+  border-color: rgba(255,255,255,0.25);
+}
+.mobile-tabs {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════
+   PANELS GRID
+   ═══════════════════════════════════════════ */
+.panels {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px; padding: 24px; max-width: 1440px; margin: 0 auto;
+}
+.panels > .device-frame { min-width: 0; }
+
+/* ═══════════════════════════════════════════
+   DEVICE FRAME
+   ═══════════════════════════════════════════ */
+.device-frame {
+  background: #060607; border-radius: 42px;
+  border: 2px solid #2a2a31;
+  box-shadow: 0 14px 50px rgba(0,0,0,0.52), inset 0 0 0 2px rgba(255,255,255,0.04);
+  overflow: hidden; display: flex; flex-direction: column;
+  min-height: 670px; position: relative;
+  padding-top: 10px;
+}
+.device-frame::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 116px;
+  height: 28px;
+  border-radius: 18px;
+  background: #000;
+  border: 1px solid #151519;
+  z-index: 12;
+}
+.device-frame::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 140px;
+  width: 4px;
+  height: 86px;
+  border-radius: 2px;
+  background: #2f2f36;
+}
+.frame-label {
+  text-align: center; padding: 10px 0 0;
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.status-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 20px 4px; font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-muted);
+}
+.status-bar .left { font-weight: 600; }
+.status-bar .right { display: flex; gap: 6px; align-items: center; }
+.status-bar .sig { display: flex; gap: 2px; }
+.status-bar .sig span { display: block; width: 3px; border-radius: 1px; background: var(--text-muted); }
+.status-bar .sig span:nth-child(1) { height: 4px; }
+.status-bar .sig span:nth-child(2) { height: 6px; }
+.status-bar .sig span:nth-child(3) { height: 8px; }
+.status-bar .sig span:nth-child(4) { height: 10px; }
+.status-bar .batt {
+  width: 20px; height: 10px; border: 1px solid var(--text-muted);
+  border-radius: 2px; position: relative;
+}
+.status-bar .batt::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 12px; height: 4px; background: var(--green); border-radius: 1px;
+}
+.status-bar .batt::before {
+  content: ''; position: absolute; right: -3px; top: 2px;
+  width: 2px; height: 4px; background: var(--text-muted); border-radius: 0 1px 1px 0;
+}
+.frame-content {
+  flex: 1; padding: 12px 16px 16px; overflow-y: auto; position: relative;
+}
+.frame-content::-webkit-scrollbar { width: 0; }
+
+/* ═══════════════════════════════════════════
+   PANEL 1 — CUSTOMER APP
+   ═══════════════════════════════════════════ */
+.customer-header { margin-bottom: 14px; }
+.customer-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+.customer-header .location {
+  font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;
+}
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 16px;
+  color: var(--text-muted); font-size: 13px;
+}
+.search-bar svg { flex-shrink: 0; }
+
+/* Restaurant Cards */
+.restaurant-list { display: flex; flex-direction: column; gap: 10px; }
+.restaurant-card {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px;
+  cursor: pointer; transition: all 0.2s ease; position: relative;
+}
+.restaurant-card:hover {
+  border-color: rgba(255,90,31,0.3); background: rgba(255,90,31,0.04);
+  transform: translateY(-1px);
+}
+.restaurant-card:active { transform: scale(0.98); }
+.restaurant-card .emoji-cover {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: rgba(255,255,255,0.06); display: flex;
+  align-items: center; justify-content: center; font-size: 24px;
+  flex-shrink: 0;
+}
+.restaurant-card .info { flex: 1; }
+.restaurant-card .info .name { font-size: 14px; font-weight: 600; }
+.restaurant-card .info .meta {
+  display: flex; gap: 10px; font-size: 12px; color: var(--text-muted); margin-top: 2px;
+}
+.restaurant-card .info .meta .rating { color: var(--amber); }
+.restaurant-card .chevron { color: var(--text-muted); font-size: 14px; }
+
+/* Menu Overlay */
+.menu-overlay {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--surface); z-index: 10; padding: 12px 16px 80px;
+  transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+  overflow-y: auto;
+}
+.menu-overlay.open { transform: translateX(0); }
+.menu-overlay::-webkit-scrollbar { width: 0; }
+.menu-back {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--accent); font-size: 13px; font-weight: 600;
+  background: none; padding: 4px 0; margin-bottom: 12px;
+}
+.menu-title { font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+.menu-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px; background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border); border-radius: var(--radius-xs);
+  margin-bottom: 8px; transition: all 0.2s ease;
+}
+.menu-item .left .item-name { font-size: 14px; font-weight: 600; }
+.menu-item .left .item-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.menu-item .right { display: flex; align-items: center; gap: 10px; }
+.menu-item .price {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--accent);
+}
+.add-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 18px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease;
+}
+.add-btn:hover { transform: scale(1.1); }
+.add-btn:active { transform: scale(0.9); }
+/* Quantity counter */
+.qty-counter {
+  display: flex; align-items: center; gap: 6px;
+  animation: fade-in 0.25s ease;
+}
+.qty-counter button {
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 16px; font-weight: 700; display: flex;
+  align-items: center; justify-content: center;
+  transition: all 0.15s ease;
+}
+.qty-counter button:active { transform: scale(0.85); }
+.qty-counter .minus { background: rgba(255,255,255,0.08); color: var(--text); }
+.qty-counter .plus { background: var(--accent); color: #fff; }
+.qty-counter .qty {
+  font-family: var(--font-mono); font-size: 14px; font-weight: 600;
+  min-width: 18px; text-align: center;
+}
+
+/* Cart bar */
+.cart-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--accent); color: #fff; padding: 14px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 14px; font-weight: 600; cursor: pointer; z-index: 15;
+  transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+}
+.cart-bar.visible { transform: translateY(0); animation: slide-up 0.4s cubic-bezier(0.32,0.72,0,1); }
+.cart-bar:hover { filter: brightness(1.1); }
+.cart-bar:active { filter: brightness(0.95); }
+.cart-bar .arrow { transition: transform 0.2s; }
+.cart-bar:hover .arrow { transform: translateX(3px); }
+
+/* Order Tracking */
+.order-tracking {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--surface); z-index: 20; padding: 16px;
+  transform: translateY(100%); opacity: 0;
+  transition: all 0.4s cubic-bezier(0.32,0.72,0,1);
+}
+.order-tracking.open { transform: translateY(0); opacity: 1; }
+.order-tracking h3 {
+  font-size: 16px; font-weight: 700; margin-bottom: 16px; text-align: center;
+}
+.order-tracking .eta {
+  text-align: center; margin-bottom: 20px;
+}
+.order-tracking .eta .time {
+  font-family: var(--font-mono); font-size: 32px; font-weight: 700; color: var(--accent);
+}
+.order-tracking .eta .label {
+  font-size: 12px; color: var(--text-muted); margin-top: 4px;
+}
+.order-tracking .eta .arrival {
+  font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); margin-top: 2px;
+}
+.client-map {
+  background: #0F0F12;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  height: 124px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.client-map-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#1A1A1F 1px, transparent 1px),
+    linear-gradient(90deg, #1A1A1F 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.client-map-pin {
+  position: absolute;
+  font-size: 14px;
+  z-index: 2;
+  transform: translateY(-50%);
+}
+.client-map-pin.restaurant { left: calc(16% - 16px); top: 50%; }
+.client-map-pin.customer { left: calc(84% + 8px); top: 50%; }
+.client-map-path {
+  position: absolute;
+  left: 16%;
+  top: 50%;
+  width: 68%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: repeating-linear-gradient(90deg, var(--accent) 0, var(--accent) 8px, transparent 8px, transparent 14px);
+  opacity: 0.45;
+}
+.client-rider-dot {
+  position: absolute;
+  top: 50%;
+  left: 16%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  animation: rider-dot-pulse 2s infinite;
+  transition: left 0.2s linear;
+}
+.client-map-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.client-map-meta strong {
+  color: var(--text);
+}
+
+/* Steps */
+.order-steps { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+.order-step {
+  display: flex; align-items: center; gap: 12px; padding: 12px 8px;
+  position: relative; opacity: 0.35; transition: all 0.4s ease;
+}
+.order-step.active { opacity: 1; }
+.order-step.completed { opacity: 0.6; }
+.order-step .step-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); display: flex;
+  align-items: center; justify-content: center; font-size: 16px;
+  flex-shrink: 0; transition: all 0.3s ease; position: relative;
+}
+.order-step.active .step-icon {
+  background: rgba(255,90,31,0.15); animation: pulse-ring 2s infinite;
+}
+.order-step.completed .step-icon { background: rgba(34,197,94,0.15); }
+.order-step .step-text .title { font-size: 13px; font-weight: 600; }
+.order-step .step-text .subtitle { font-size: 11px; color: var(--text-muted); }
+.order-step .step-line {
+  position: absolute; left: 25px; top: 48px; width: 2px; height: 12px;
+  background: var(--border);
+}
+.order-step:last-child .step-line { display: none; }
+.order-step.active .step-line { background: var(--accent); }
+.order-step.completed .step-line { background: var(--green); }
+.flame-icon { animation: flame-flicker 0.6s ease-in-out infinite; display: inline-block; }
+.scooter-icon { display: inline-block; animation: scooter-move 3s linear infinite; }
+.check-burst { animation: checkmark-burst 0.5s ease forwards; display: inline-block; }
+.outcome-card {
+  margin-top: 14px;
+  border: 1px solid rgba(34,197,94,0.32);
+  background: rgba(34,197,94,0.08);
+  border-radius: var(--radius-xs);
+  padding: 10px 12px;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+.outcome-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.outcome-card .title {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--green);
+}
+.outcome-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.outcome-metric {
+  background: rgba(0,0,0,0.16);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 7px 8px;
+}
+.outcome-metric .label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.outcome-metric .value {
+  margin-top: 2px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ═══════════════════════════════════════════
+   PANEL 2 — RESTAURANT DASHBOARD
+   ═══════════════════════════════════════════ */
+.stats-bar {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px;
+}
+.stat-card {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: var(--radius-xs); padding: 10px; text-align: center;
+}
+.stat-card .stat-value {
+  font-family: var(--font-mono); font-size: 18px; font-weight: 700;
+  transition: all 0.3s ease;
+}
+.stat-card .stat-value.animate { animation: number-up 0.4s ease, green-flash 0.8s ease; }
+.stat-card .stat-label { font-size: 10px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Notification banner */
+.notif-banner {
+  background: rgba(255,90,31,0.1); border: 1px solid rgba(255,90,31,0.25);
+  border-radius: var(--radius-xs); padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  transform: translateY(-40px); opacity: 0;
+  transition: all 0.4s cubic-bezier(0.32,0.72,0,1);
+}
+.notif-banner.visible { transform: translateY(0); opacity: 1; }
+.notif-banner .bell {
+  font-size: 18px; position: relative;
+}
+.notif-banner.visible .bell { animation: bell-ring 0.8s ease; }
+.notif-banner .bell .ring-pulse {
+  position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
+  border-radius: 50%; animation: pulse-ring 1.5s infinite;
+}
+.notif-banner .notif-text { font-size: 13px; font-weight: 500; }
+.notif-banner .notif-text strong { color: var(--accent); }
+
+/* Order card */
+.order-card-resto {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px;
+  opacity: 0; transform: translateY(12px);
+  transition: all 0.4s ease;
+}
+.order-card-resto.visible { opacity: 1; transform: translateY(0); }
+.order-card-resto .card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.order-card-resto .card-header .client { font-size: 14px; font-weight: 600; }
+.order-card-resto .card-header .timestamp {
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+}
+.order-card-resto .card-items {
+  font-size: 12px; color: var(--text-muted); margin-bottom: 6px; line-height: 1.6;
+}
+.order-card-resto .card-address {
+  font-size: 12px; color: var(--text-muted); margin-bottom: 12px;
+  padding-top: 6px; border-top: 1px solid var(--border);
+}
+.order-card-resto .card-actions { display: flex; gap: 8px; }
+.order-card-resto .card-actions button {
+  flex: 1; padding: 10px; border-radius: var(--radius-xs);
+  font-size: 13px; font-weight: 600; transition: all 0.2s ease;
+}
+.order-card-resto .card-actions button:active { transform: scale(0.96); }
+.btn-accept { background: rgba(34,197,94,0.15); color: var(--green); }
+.btn-accept:hover { background: rgba(34,197,94,0.25); }
+.btn-decline { background: rgba(239,68,68,0.1); color: var(--red); }
+.btn-decline:hover { background: rgba(239,68,68,0.2); }
+
+/* Prep section */
+.prep-section {
+  opacity: 0; transform: translateY(10px);
+  transition: all 0.4s ease; margin-top: 8px;
+}
+.prep-section.visible { opacity: 1; transform: translateY(0); }
+.prep-timer {
+  text-align: center; margin: 12px 0;
+}
+.prep-timer .timer-value {
+  font-family: var(--font-mono); font-size: 36px; font-weight: 700;
+  color: var(--accent);
+}
+.prep-timer .timer-label {
+  font-size: 11px; color: var(--text-muted); margin-top: 2px;
+}
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  transition: all 0.4s ease; margin: 0 auto; display: flex; justify-content: center;
+  width: fit-content;
+}
+.status-badge.pending { background: rgba(245,158,11,0.15); color: var(--amber); }
+.status-badge.preparing { background: rgba(255,90,31,0.15); color: var(--accent); }
+.status-badge.ready { background: rgba(34,197,94,0.15); color: var(--green); }
+.status-badge .badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.status-badge.pending .badge-dot { background: var(--amber); }
+.status-badge.preparing .badge-dot { background: var(--accent); animation: pulse-dot 1s infinite; }
+.status-badge.ready .badge-dot { background: var(--green); animation: pulse-green 1.2s infinite; }
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 40px 16px; color: var(--text-muted);
+}
+.empty-state .empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+.empty-state .empty-text { font-size: 13px; }
+
+/* ═══════════════════════════════════════════
+   PANEL 3 — RIDER DASHBOARD
+   ═══════════════════════════════════════════ */
+.rider-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+.rider-header .rider-info { display: flex; align-items: center; gap: 8px; }
+.rider-header .rider-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #ff8a5c);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+}
+.rider-header .rider-name { font-size: 14px; font-weight: 600; }
+.rider-header .online-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; color: var(--green);
+}
+.rider-header .online-badge .dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+  animation: pulse-green 1.5s infinite;
+}
+
+/* Earnings */
+.rider-earnings {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: var(--radius-xs); padding: 10px 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+.rider-earnings .earn-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.rider-earnings .earn-value {
+  font-family: var(--font-mono); font-size: 18px; font-weight: 700;
+  transition: all 0.3s ease;
+}
+.rider-earnings .earn-value.flash { animation: green-flash 0.8s ease; }
+
+/* Mini map */
+.mini-map {
+  background: #0F0F12; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); height: 180px;
+  position: relative; overflow: hidden; margin-bottom: 14px;
+}
+.map-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(#1A1A1F 1px, transparent 1px),
+    linear-gradient(90deg, #1A1A1F 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.map-node {
+  position: absolute; font-size: 16px; z-index: 2;
+  transition: opacity 0.4s ease;
+  transform: translateY(-50%);
+}
+.map-node.restaurant { top: 50%; left: calc(16% - 18px); }
+.map-node.delivery { top: 50%; left: calc(84% + 10px); }
+.map-path {
+  position: absolute; top: 50%; left: 16%;
+  width: 68%; height: 2px; z-index: 1;
+  transform: translateY(-50%);
+  background: repeating-linear-gradient(90deg, var(--accent) 0, var(--accent) 8px, transparent 8px, transparent 14px);
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.map-path.visible { opacity: 0.5; }
+.rider-dot {
+  position: absolute; top: 50%; left: 16%;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); z-index: 3;
+  transform: translate(-50%, -50%);
+  animation: rider-dot-pulse 2s infinite;
+  transition: left 0.2s linear;
+}
+
+/* Mission card */
+.mission-card {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px;
+  transform: translateY(100%); opacity: 0;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.mission-card.visible { transform: translateY(0); opacity: 1; }
+.mission-card h4 {
+  font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.mission-detail {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12px; margin-bottom: 6px; line-height: 1.4;
+}
+.mission-detail .label { color: var(--text-muted); min-width: 52px; flex-shrink: 0; }
+.mission-detail .value { font-weight: 500; }
+.mission-earnings {
+  font-family: var(--font-mono); font-size: 15px; font-weight: 700;
+  color: var(--green); margin: 10px 0; text-align: center;
+}
+.mission-actions { display: flex; gap: 8px; margin-top: 10px; }
+.mission-actions button {
+  flex: 1; padding: 10px; border-radius: var(--radius-xs);
+  font-size: 13px; font-weight: 600; transition: all 0.2s ease;
+}
+.mission-actions button:active { transform: scale(0.96); }
+.btn-accept-ride { background: var(--accent); color: #fff; }
+.btn-accept-ride:hover { filter: brightness(1.1); }
+.btn-skip { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+.btn-skip:hover { border-color: var(--text-muted); }
+
+/* Rider status */
+.rider-status {
+  text-align: center; margin-top: 10px; opacity: 0;
+  transition: all 0.3s ease;
+}
+.rider-status.visible { opacity: 1; }
+.rider-status-text {
+  font-size: 12px; font-weight: 600; padding: 6px 14px;
+  border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,90,31,0.1); color: var(--accent);
+  transition: all 0.4s ease;
+}
+.rider-status-text.delivered { background: rgba(34,197,94,0.1); color: var(--green); }
+
+/* ═══════════════════════════════════════════
+   FOOTER BAR
+   ═══════════════════════════════════════════ */
+.footer-bar {
+  display: flex; justify-content: center; align-items: center;
+  padding: 20px 28px; gap: 24px;
+  border-top: 1px solid var(--border); background: #0D0D0F;
+}
+.footer-bar .pitch {
+  font-size: 14px; color: var(--text-muted); text-align: center;
+}
+.footer-bar .pitch .highlight {
+  color: var(--text); font-weight: 600; position: relative;
+}
+.footer-bar .pitch .highlight::after {
+  content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+  height: 2px; background: var(--accent); border-radius: 1px;
+}
+.footer-bar .cta-ghost {
+  padding: 8px 20px; font-size: 13px; font-weight: 600;
+  color: var(--text-muted); background: transparent;
+  border: 1px solid var(--border); border-radius: var(--radius-xs);
+  transition: all 0.2s ease; white-space: nowrap;
+}
+.footer-bar .cta-ghost:hover {
+  color: var(--text); border-color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE LAYOUT
+   ═══════════════════════════════════════════ */
+@media (max-width: 1180px) {
+  .panels {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 18px;
+  }
+  .device-frame {
+    min-height: 640px;
+  }
+}
+
+@media (max-width: 860px) {
+  .top-bar {
+    padding: 12px 14px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .top-bar .brand {
+    font-size: 18px;
+  }
+  .top-bar .right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .live-badge {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+  .panels {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 12px;
+  }
+  .mobile-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 10px 12px 0;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .mobile-tab {
+    padding: 9px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .mobile-tab.active {
+    color: #fff;
+    border-color: rgba(255,90,31,0.45);
+    background: rgba(255,90,31,0.14);
+  }
+  .device-frame.mobile-hidden {
+    display: none;
+  }
+  .device-frame {
+    min-height: 620px;
+    border-radius: 34px;
+  }
+  .device-frame::before {
+    width: 98px;
+    height: 24px;
+    top: 12px;
+  }
+  .frame-label {
+    padding-top: 8px;
+    font-size: 10px;
+  }
+  .status-bar {
+    padding: 18px 14px 4px;
+  }
+  .frame-content {
+    padding: 10px 12px 14px;
+  }
+  .mini-map {
+    height: 164px;
+  }
+  .footer-bar {
+    padding: 14px 12px 18px;
+    gap: 10px;
+    flex-direction: column;
+  }
+  .footer-bar .pitch {
+    font-size: 13px;
+  }
+  .footer-bar .cta-ghost {
+    width: 100%;
+    max-width: 320px;
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    background: #070708;
+  }
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 120;
+    backdrop-filter: blur(8px);
+    background: rgba(13,13,15,0.88);
+  }
+  .top-bar .brand {
+    font-size: 17px;
+  }
+  .replay-btn {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .reset-btn {
+    padding: 7px 11px;
+    font-size: 12px;
+  }
+  .panels {
+    padding: 10px 8px;
+    gap: 12px;
+  }
+  .device-frame {
+    border-radius: 28px;
+    min-height: 590px;
+    border-width: 1px;
+  }
+  .device-frame::before {
+    width: 86px;
+    height: 20px;
+    top: 10px;
+    border-radius: 14px;
+  }
+  .device-frame::after {
+    display: none;
+  }
+  .status-bar {
+    font-size: 10px;
+    padding: 16px 12px 4px;
+  }
+  .customer-header h2 {
+    font-size: 16px;
+  }
+  .search-bar {
+    padding: 9px 12px;
+    margin-bottom: 12px;
+  }
+  .restaurant-card {
+    padding: 10px;
+    gap: 10px;
+  }
+  .restaurant-card .emoji-cover {
+    width: 42px;
+    height: 42px;
+    font-size: 21px;
+  }
+  .order-tracking {
+    padding: 12px;
+  }
+  .order-tracking .eta .time {
+    font-size: 28px;
+  }
+  .client-map {
+    height: 112px;
+  }
+  .mini-map {
+    height: 150px;
+  }
+  .mission-card,
+  .order-card-resto {
+    padding: 12px;
+  }
+  .outcome-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .footer-bar {
+    padding: 12px 10px 16px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══ -->
+<div class="top-bar">
+  <div class="brand"><span style="font-size:22px">&#x1F6F5;</span> AloAlo</div>
+  <div class="right">
+    <button class="replay-btn" id="replayBtn" onclick="startDemo()">
+      <span>&#x25B6;</span> Start Demo
+    </button>
+    <button class="reset-btn" onclick="hardResetDemo()">
+      <span>&#x2715;</span> Reset
+    </button>
+    <div class="live-badge"><div class="dot"></div> LIVE DEMO</div>
+  </div>
+</div>
+<div class="mobile-tabs" id="mobileTabs">
+  <button class="mobile-tab active" data-panel="customer" onclick="switchMobilePanel('customer')">Customer</button>
+  <button class="mobile-tab" data-panel="restaurant" onclick="switchMobilePanel('restaurant')">Restaurant</button>
+  <button class="mobile-tab" data-panel="rider" onclick="switchMobilePanel('rider')">Rider</button>
+</div>
+
+<!-- ═══ PANELS ═══ -->
+<div class="panels">
+
+  <!-- ────── PANEL 1: CUSTOMER APP ────── -->
+  <div class="device-frame" id="frameCustomer">
+    <div class="frame-label">Customer App</div>
+    <div class="status-bar">
+      <div class="left">20:14</div>
+      <div class="right">
+        <div class="sig"><span></span><span></span><span></span><span></span></div>
+        <span>5G</span>
+        <div class="batt"></div>
+      </div>
+    </div>
+    <div class="frame-content" id="customerContent">
+      <!-- Main view -->
+      <div id="customerMain">
+        <div class="customer-header">
+          <h2>Good evening, Sara &#x1F44B;</h2>
+          <div class="location">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Tunis, Lac 2
+          </div>
+        </div>
+        <div class="search-bar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Search restaurants, dishes...
+        </div>
+        <div class="restaurant-list">
+          <div class="restaurant-card" onclick="openMenu(0)">
+            <div class="emoji-cover">&#x1F32E;</div>
+            <div class="info">
+              <div class="name">Tacos Avenue</div>
+              <div class="meta">
+                <span class="rating">&#x2B50; 4.7</span>
+                <span>18 min</span>
+              </div>
+            </div>
+            <span class="chevron">&#x203A;</span>
+          </div>
+          <div class="restaurant-card" onclick="openMenu(1)">
+            <div class="emoji-cover">&#x1F371;</div>
+            <div class="info">
+              <div class="name">Sushi Sakura</div>
+              <div class="meta">
+                <span class="rating">&#x2B50; 4.9</span>
+                <span>25 min</span>
+              </div>
+            </div>
+            <span class="chevron">&#x203A;</span>
+          </div>
+          <div class="restaurant-card" onclick="openMenu(2)">
+            <div class="emoji-cover">&#x1F354;</div>
+            <div class="info">
+              <div class="name">Burger Bros</div>
+              <div class="meta">
+                <span class="rating">&#x2B50; 4.5</span>
+                <span>20 min</span>
+              </div>
+            </div>
+            <span class="chevron">&#x203A;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu overlay -->
+      <div class="menu-overlay" id="menuOverlay">
+        <button class="menu-back" onclick="closeMenu()">&#x2039; Back</button>
+        <div class="menu-title" id="menuTitle"></div>
+        <div id="menuItems"></div>
+      </div>
+
+      <!-- Cart bar -->
+      <div class="cart-bar" id="cartBar" onclick="placeOrder()">
+        <span id="cartText">1 item &middot; 12.500 TND</span>
+        <span class="arrow">Place Order &#x2192;</span>
+      </div>
+
+      <!-- Order tracking -->
+      <div class="order-tracking" id="orderTracking">
+        <h3>Order Tracking</h3>
+        <div class="eta">
+          <div class="time" id="countdown">28:00</div>
+          <div class="label">Estimated time remaining</div>
+          <div class="arrival">Estimated arrival: <span id="arrivalTime">20:42</span></div>
+        </div>
+        <div class="client-map-meta">
+          <span>Rider: <strong id="clientRiderStatus">Waiting pickup</strong></span>
+          <span>Distance: <strong id="clientRiderDistance">3.2 km</strong></span>
+        </div>
+        <div class="client-map">
+          <div class="client-map-grid"></div>
+          <div class="client-map-pin restaurant">&#x1F374;</div>
+          <div class="client-map-pin customer">&#x1F3E0;</div>
+          <div class="client-map-path"></div>
+          <div class="client-rider-dot" id="clientRiderDot"></div>
+        </div>
+        <div class="order-steps">
+          <div class="order-step" id="step0">
+            <div class="step-icon">&#x1F4E6;</div>
+            <div class="step-text"><div class="title">Order received</div><div class="subtitle">Your order has been placed</div></div>
+            <div class="step-line"></div>
+          </div>
+          <div class="order-step" id="step1">
+            <div class="step-icon"><span class="flame-icon">&#x1F525;</span></div>
+            <div class="step-text"><div class="title">Being prepared</div><div class="subtitle">The kitchen is cooking</div></div>
+            <div class="step-line"></div>
+          </div>
+          <div class="order-step" id="step2">
+            <div class="step-icon">&#x1F6F5;</div>
+            <div class="step-text"><div class="title">Rider on the way</div><div class="subtitle">Your food is coming to you</div></div>
+            <div class="step-line"></div>
+          </div>
+          <div class="order-step" id="step3">
+            <div class="step-icon"><span class="check-burst" style="opacity:0">&#x2705;</span></div>
+            <div class="step-text"><div class="title">Delivered</div><div class="subtitle">Enjoy your meal!</div></div>
+          </div>
+        </div>
+        <div class="outcome-card" id="outcomeCard">
+          <div class="title">Business impact (this order)</div>
+          <div class="outcome-grid">
+            <div class="outcome-metric">
+              <div class="label">On-time</div>
+              <div class="value">+1</div>
+            </div>
+            <div class="outcome-metric">
+              <div class="label">Revenue</div>
+              <div class="value" id="outcomeRevenue">+12.500 TND</div>
+            </div>
+            <div class="outcome-metric">
+              <div class="label">Rider earning</div>
+              <div class="value" id="outcomeRider">+4.500 TND</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────── PANEL 2: RESTAURANT DASHBOARD ────── -->
+  <div class="device-frame" id="frameRestaurant">
+    <div class="frame-label">Restaurant Dashboard</div>
+    <div class="status-bar">
+      <div class="left">20:14</div>
+      <div class="right">
+        <div class="sig"><span></span><span></span><span></span><span></span></div>
+        <span>WiFi</span>
+        <div class="batt"></div>
+      </div>
+    </div>
+    <div class="frame-content">
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-value" id="statOrders">12</div>
+          <div class="stat-label">Orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statRevenue">245.000</div>
+          <div class="stat-label">Revenue (TND)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statAvg">22 min</div>
+          <div class="stat-label">Avg Time</div>
+        </div>
+      </div>
+
+      <div class="notif-banner" id="notifBanner">
+        <div class="bell"><span style="position:relative;z-index:1">&#x1F514;</span><div class="ring-pulse"></div></div>
+        <div class="notif-text"><strong>New order</strong> &mdash; Sara M. &middot; <span style="font-family:var(--font-mono)">12.500 TND</span></div>
+      </div>
+
+      <div class="order-card-resto" id="restoOrderCard">
+        <div class="card-header">
+          <span class="client">Sara M.</span>
+          <span class="timestamp" id="restoTimestamp">20:14</span>
+        </div>
+        <div class="card-items" id="restoItems">1x Taco Supreme, 1x Loaded Nachos</div>
+        <div class="card-address">&#x1F4CD; Les Berges du Lac, Tunis</div>
+        <div class="card-actions" id="restoActions">
+          <button class="btn-accept" onclick="acceptOrder()">Accept &#x2713;</button>
+          <button class="btn-decline">Decline &#x2717;</button>
+        </div>
+      </div>
+
+      <div class="prep-section" id="prepSection">
+        <div style="text-align:center;margin-bottom:8px;">
+          <div class="status-badge pending" id="restoBadge">
+            <div class="badge-dot"></div>
+            <span id="restoBadgeText">Pending</span>
+          </div>
+        </div>
+        <div class="prep-timer">
+          <div class="timer-value" id="prepTimer">15:00</div>
+          <div class="timer-label">Preparation time</div>
+        </div>
+      </div>
+
+      <div class="empty-state" id="restoEmpty">
+        <div class="empty-icon">&#x1F373;</div>
+        <div class="empty-text">Waiting for new orders...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────── PANEL 3: RIDER DASHBOARD ────── -->
+  <div class="device-frame" id="frameRider">
+    <div class="frame-label">Rider Dashboard</div>
+    <div class="status-bar">
+      <div class="left">20:14</div>
+      <div class="right">
+        <div class="sig"><span></span><span></span><span></span><span></span></div>
+        <span>4G</span>
+        <div class="batt"></div>
+      </div>
+    </div>
+    <div class="frame-content">
+      <div class="rider-header">
+        <div class="rider-info">
+          <div class="rider-avatar">AK</div>
+          <div class="rider-name">Amine K.</div>
+        </div>
+        <div class="online-badge"><div class="dot"></div> Online</div>
+      </div>
+
+      <div class="rider-earnings">
+        <div>
+          <div class="earn-label">Today's earnings</div>
+        </div>
+        <div class="earn-value" id="riderEarnings">47.500 TND</div>
+      </div>
+
+      <div class="mini-map">
+        <div class="map-grid"></div>
+        <div class="map-node restaurant" id="mapResto" style="opacity:0">&#x1F374;</div>
+        <div class="map-node delivery" id="mapDelivery" style="opacity:0">&#x1F4CD;</div>
+        <div class="map-path" id="mapPath"></div>
+        <div class="rider-dot" id="riderDot"></div>
+      </div>
+
+      <div class="mission-card" id="missionCard">
+        <h4>&#x1F4E8; New Mission</h4>
+        <div class="mission-detail">
+          <span class="label">Pickup</span>
+          <span class="value">Tacos Avenue &mdash; Lac 2</span>
+        </div>
+        <div class="mission-detail">
+          <span class="label">Dropoff</span>
+          <span class="value">Sara M. &mdash; Les Berges du Lac</span>
+        </div>
+        <div class="mission-detail">
+          <span class="label">Distance</span>
+          <span class="value">3.2 km</span>
+        </div>
+        <div class="mission-earnings">+4.500 TND</div>
+        <div class="mission-actions" id="missionActions">
+          <button class="btn-accept-ride" onclick="acceptRide()">Accept Ride</button>
+          <button class="btn-skip">Skip</button>
+        </div>
+      </div>
+
+      <div class="rider-status" id="riderStatus">
+        <div class="rider-status-text" id="riderStatusText">Heading to restaurant</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer-bar">
+  <div class="pitch">
+    This is a live prototype &mdash; <span class="highlight">your branded app</span>, built in weeks.
+  </div>
+  <button class="cta-ghost">&#x2192; Let's build it</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+   ═══════════════════════════════════════════ */
+const restaurants = [
+  {
+    name: 'Tacos Avenue', emoji: '\u{1F32E}',
+    items: [
+      { name: 'Taco Supreme', desc: 'Grilled chicken, guac, salsa verde', price: 8.500 },
+      { name: 'Loaded Nachos', desc: 'Melted cheddar, jalape\u00f1os, sour cream', price: 6.500 },
+      { name: 'Churros', desc: 'Cinnamon sugar, chocolate dip', price: 4.000 }
+    ]
+  },
+  {
+    name: 'Sushi Sakura', emoji: '\u{1F371}',
+    items: [
+      { name: 'Dragon Roll', desc: 'Shrimp tempura, avocado, eel sauce', price: 14.000 },
+      { name: 'Salmon Nigiri (6pc)', desc: 'Fresh Atlantic salmon', price: 11.500 },
+      { name: 'Miso Soup', desc: 'Tofu, wakame, dashi broth', price: 3.500 }
+    ]
+  },
+  {
+    name: 'Burger Bros', emoji: '\u{1F354}',
+    items: [
+      { name: 'Smash Burger', desc: 'Double patty, American cheese, pickles', price: 12.500 },
+      { name: 'Truffle Fries', desc: 'Parmesan, truffle oil, herbs', price: 7.000 },
+      { name: 'Milkshake', desc: 'Vanilla bean, whipped cream', price: 5.500 }
+    ]
+  }
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════ */
+let state = {
+  cart: {},            // { itemIndex: qty }
+  currentRestaurant: -1,
+  orderActive: false,
+  orderStep: -1,
+  demoRunning: false,
+  countdownInterval: null,
+  prepInterval: null,
+  gpsInterval: null,
+  stepInterval: null,
+  demoTimeout: null,
+  cycleCount: 0,
+  statOrders: 12,
+  statRevenue: 245.000,
+  riderEarnings: 47.500,
+  riderProgress: 0,
+  lastOrderTotal: 12.500,
+  mobilePanel: 'customer'
+};
+
+/* ═══════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════ */
+function fmt(n) {
+  return n.toFixed(3).replace(/\./, '.');
+}
+
+function now24() {
+  const d = new Date();
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+function animateValue(el) {
+  el.classList.remove('animate');
+  void el.offsetWidth;
+  el.classList.add('animate');
+}
+
+function setGpsProgress(progress) {
+  const p = Math.max(0, Math.min(1, progress));
+  state.riderProgress = p;
+  const leftPct = 16 + (68 * p);
+  document.getElementById('riderDot').style.left = leftPct + '%';
+  document.getElementById('clientRiderDot').style.left = leftPct + '%';
+}
+
+function switchMobilePanel(panel) {
+  state.mobilePanel = panel;
+  const mapping = {
+    customer: 'frameCustomer',
+    restaurant: 'frameRestaurant',
+    rider: 'frameRider'
+  };
+  Object.keys(mapping).forEach((key) => {
+    const frame = document.getElementById(mapping[key]);
+    if (!frame) return;
+    frame.classList.toggle('mobile-hidden', key !== panel && window.innerWidth <= 860);
+  });
+  document.querySelectorAll('.mobile-tab').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.panel === panel);
+  });
+}
+
+function applyResponsivePanelMode() {
+  if (window.innerWidth <= 860) {
+    switchMobilePanel(state.mobilePanel || 'customer');
+  } else {
+    ['frameCustomer', 'frameRestaurant', 'frameRider'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('mobile-hidden');
+    });
+  }
+}
+
+function hardResetDemo() {
+  resetAll();
+  document.getElementById('replayBtn').classList.add('visible');
+  switchMobilePanel('customer');
+}
+
+/* ═══════════════════════════════════════════
+   MENU
+   ═══════════════════════════════════════════ */
+function openMenu(idx) {
+  if (state.orderActive) return;
+  state.currentRestaurant = idx;
+  state.cart = {};
+  const r = restaurants[idx];
+  document.getElementById('menuTitle').textContent = r.emoji + ' ' + r.name;
+  const container = document.getElementById('menuItems');
+  container.innerHTML = '';
+  r.items.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'menu-item';
+    div.style.animation = `fade-in-up 0.3s ease ${i * 0.08}s both`;
+    div.innerHTML = `
+      <div class="left">
+        <div class="item-name">${item.name}</div>
+        <div class="item-desc">${item.desc}</div>
+      </div>
+      <div class="right">
+        <span class="price">${fmt(item.price)} TND</span>
+        <div id="addWrap${i}">
+          <button class="add-btn" onclick="addItem(${i}, event)" aria-label="Add ${item.name}">+</button>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+  document.getElementById('menuOverlay').classList.add('open');
+  updateCart();
+}
+
+function closeMenu() {
+  document.getElementById('menuOverlay').classList.remove('open');
+  state.cart = {};
+  document.getElementById('cartBar').classList.remove('visible');
+}
+
+function addItem(idx, e) {
+  if (e) e.stopPropagation();
+  if (!state.cart[idx]) state.cart[idx] = 0;
+  state.cart[idx]++;
+  renderQty(idx);
+  updateCart();
+}
+
+function removeItem(idx) {
+  if (state.cart[idx]) state.cart[idx]--;
+  if (state.cart[idx] <= 0) delete state.cart[idx];
+  renderQty(idx);
+  updateCart();
+}
+
+function renderQty(idx) {
+  const wrap = document.getElementById('addWrap' + idx);
+  if (!wrap) return;
+  const qty = state.cart[idx] || 0;
+  if (qty === 0) {
+    wrap.innerHTML = `<button class="add-btn" onclick="addItem(${idx}, event)" aria-label="Add item">+</button>`;
+  } else {
+    wrap.innerHTML = `
+      <div class="qty-counter">
+        <button class="minus" onclick="removeItem(${idx})" aria-label="Remove">&minus;</button>
+        <span class="qty">${qty}</span>
+        <button class="plus" onclick="addItem(${idx}, event)" aria-label="Add">+</button>
+      </div>`;
+  }
+}
+
+function updateCart() {
+  const keys = Object.keys(state.cart);
+  const total = keys.reduce((s, k) => {
+    return s + (state.cart[k] * restaurants[state.currentRestaurant].items[k].price);
+  }, 0);
+  const count = keys.reduce((s, k) => s + state.cart[k], 0);
+  const bar = document.getElementById('cartBar');
+  if (count > 0) {
+    document.getElementById('cartText').textContent =
+      count + ' item' + (count > 1 ? 's' : '') + ' \u00B7 ' + fmt(total) + ' TND';
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   ORDER FLOW
+   ═══════════════════════════════════════════ */
+function resetAll() {
+  clearInterval(state.countdownInterval);
+  clearInterval(state.prepInterval);
+  clearInterval(state.gpsInterval);
+  clearInterval(state.stepInterval);
+  clearTimeout(state.demoTimeout);
+  state.orderActive = false;
+  state.orderStep = -1;
+  state.cart = {};
+  state.currentRestaurant = -1;
+
+  // Customer
+  document.getElementById('menuOverlay').classList.remove('open');
+  document.getElementById('cartBar').classList.remove('visible');
+  document.getElementById('orderTracking').classList.remove('open');
+  document.getElementById('outcomeCard').classList.remove('visible');
+  document.querySelectorAll('.order-step').forEach(s => {
+    s.classList.remove('active', 'completed');
+  });
+  document.getElementById('step3').querySelector('.check-burst').style.opacity = '0';
+  document.getElementById('countdown').textContent = '28:00';
+
+  // Restaurant
+  document.getElementById('notifBanner').classList.remove('visible');
+  document.getElementById('restoOrderCard').classList.remove('visible');
+  document.getElementById('prepSection').classList.remove('visible');
+  document.getElementById('restoEmpty').style.display = '';
+  document.getElementById('restoActions').innerHTML =
+    '<button class="btn-accept" onclick="acceptOrder()">Accept \u2713</button>' +
+    '<button class="btn-decline">Decline \u2717</button>';
+  const badge = document.getElementById('restoBadge');
+  badge.className = 'status-badge pending';
+  document.getElementById('restoBadgeText').textContent = 'Pending';
+  document.getElementById('prepTimer').textContent = '15:00';
+
+  // Rider
+  document.getElementById('missionCard').classList.remove('visible');
+  document.getElementById('riderStatus').classList.remove('visible');
+  document.getElementById('missionActions').innerHTML =
+    '<button class="btn-accept-ride" onclick="acceptRide()">Accept Ride</button>' +
+    '<button class="btn-skip">Skip</button>';
+  setGpsProgress(0);
+  document.getElementById('clientRiderStatus').textContent = 'Waiting pickup';
+  document.getElementById('clientRiderDistance').textContent = '3.2 km';
+  document.getElementById('mapResto').style.opacity = '0';
+  document.getElementById('mapDelivery').style.opacity = '0';
+  document.getElementById('mapPath').classList.remove('visible');
+  document.getElementById('riderStatusText').textContent = 'Heading to restaurant';
+  document.getElementById('riderStatusText').classList.remove('delivered');
+  state.riderProgress = 0;
+}
+
+function placeOrder() {
+  if (state.orderActive) return;
+  state.orderActive = true;
+
+  // Build order description for restaurant
+  const r = restaurants[state.currentRestaurant] || restaurants[0];
+  const keys = Object.keys(state.cart);
+  let desc = '';
+  let total = 0;
+  if (keys.length > 0) {
+    desc = keys.map(k => state.cart[k] + 'x ' + r.items[k].name).join(', ');
+    total = keys.reduce((s, k) => s + state.cart[k] * r.items[k].price, 0);
+  } else {
+    desc = '1x Taco Supreme, 1x Loaded Nachos';
+    total = 12.500;
+  }
+  state.lastOrderTotal = total;
+
+  // Update restaurant panel
+  document.getElementById('restoItems').textContent = desc;
+  document.getElementById('restoTimestamp').textContent = now24();
+
+  // Show notification banner
+  document.getElementById('notifBanner').querySelector('.notif-text').innerHTML =
+    '<strong>New order</strong> &mdash; Sara M. \u00B7 <span style="font-family:var(--font-mono)">' + fmt(total) + ' TND</span>';
+
+  // Close menu, show tracking
+  document.getElementById('menuOverlay').classList.remove('open');
+  document.getElementById('cartBar').classList.remove('visible');
+
+  setTimeout(() => {
+    document.getElementById('orderTracking').classList.add('open');
+    startOrderSteps(total);
+  }, 300);
+
+  // Restaurant: show notification + order card
+  document.getElementById('restoEmpty').style.display = 'none';
+  setTimeout(() => {
+    document.getElementById('notifBanner').classList.add('visible');
+  }, 800);
+  setTimeout(() => {
+    document.getElementById('restoOrderCard').classList.add('visible');
+  }, 1200);
+
+}
+
+function startOrderSteps(total) {
+  let seconds = 28 * 60;
+  const countdownEl = document.getElementById('countdown');
+  // Calculate arrival
+  const arrD = new Date(Date.now() + seconds * 1000);
+  document.getElementById('arrivalTime').textContent =
+    arrD.getHours().toString().padStart(2,'0') + ':' + arrD.getMinutes().toString().padStart(2,'0');
+
+  state.countdownInterval = setInterval(() => {
+    seconds--;
+    if (seconds <= 0) { clearInterval(state.countdownInterval); seconds = 0; }
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    countdownEl.textContent = m + ':' + s;
+  }, 1000);
+
+  // Step 0: Order received
+  setOrderStep(0);
+
+  // Steps progress manually via restaurant/rider actions
+}
+
+function setOrderStep(idx) {
+  state.orderStep = idx;
+  document.querySelectorAll('.order-step').forEach((el, i) => {
+    el.classList.remove('active', 'completed');
+    if (i < idx) el.classList.add('completed');
+    if (i === idx) el.classList.add('active');
+  });
+  if (idx === 3) {
+    const cb = document.getElementById('step3').querySelector('.check-burst');
+    cb.style.opacity = '1';
+    cb.style.animation = 'none';
+    void cb.offsetWidth;
+    cb.style.animation = 'checkmark-burst 0.5s ease forwards';
+  }
+}
+
+/* ═══════════════════════════════════════════
+   RESTAURANT ACTIONS
+   ═══════════════════════════════════════════ */
+function acceptOrder() {
+  // Hide actions, show prep
+  document.getElementById('restoActions').innerHTML =
+    '<div style="text-align:center;font-size:12px;color:var(--green);font-weight:600;animation:fade-in 0.3s ease">Order Accepted \u2713</div>';
+  document.getElementById('notifBanner').classList.remove('visible');
+
+  setTimeout(() => {
+    document.getElementById('prepSection').classList.add('visible');
+    startPrepTimer();
+  }, 500);
+
+  // Update stats
+  state.statOrders++;
+  const ordEl = document.getElementById('statOrders');
+  ordEl.textContent = state.statOrders;
+  animateValue(ordEl);
+
+  // Send mission to rider
+  setTimeout(() => {
+    document.getElementById('mapResto').style.opacity = '1';
+    document.getElementById('mapDelivery').style.opacity = '1';
+    document.getElementById('mapPath').classList.add('visible');
+    document.getElementById('missionCard').classList.add('visible');
+  }, 1500);
+
+  setOrderStep(1);
+}
+
+function startPrepTimer() {
+  let secs = 15 * 60;
+  const el = document.getElementById('prepTimer');
+  const badge = document.getElementById('restoBadge');
+  const badgeText = document.getElementById('restoBadgeText');
+
+  // Preparing
+  badge.className = 'status-badge preparing';
+  badgeText.textContent = 'Preparing';
+
+  state.prepInterval = setInterval(() => {
+    secs -= 1;
+    if (secs <= 0) secs = 0;
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    el.textContent = m + ':' + s;
+    if (secs <= 0) {
+      clearInterval(state.prepInterval);
+      badge.className = 'status-badge ready';
+      badgeText.textContent = 'Ready for pickup';
+      // Update revenue
+      const revEl = document.getElementById('statRevenue');
+      state.statRevenue += 12.500;
+      revEl.textContent = fmt(state.statRevenue);
+      animateValue(revEl);
+    }
+  }, 1000);
+}
+
+/* ═══════════════════════════════════════════
+   RIDER ACTIONS
+   ═══════════════════════════════════════════ */
+function acceptRide() {
+  document.getElementById('missionActions').innerHTML =
+    '<div style="text-align:center;font-size:12px;color:var(--accent);font-weight:600;animation:fade-in 0.3s ease">Mission Accepted \u{1F6F5}</div>';
+
+  // Show status
+  document.getElementById('riderStatus').classList.add('visible');
+  const statusText = document.getElementById('riderStatusText');
+  const clientStatus = document.getElementById('clientRiderStatus');
+  const clientDistance = document.getElementById('clientRiderDistance');
+  statusText.textContent = 'Heading to restaurant';
+  statusText.classList.remove('delivered');
+  clientStatus.textContent = 'Heading to restaurant';
+  clientDistance.textContent = '3.2 km';
+  setGpsProgress(0);
+  clearInterval(state.gpsInterval);
+
+  // Phase 2: picked up
+  setTimeout(() => {
+    statusText.textContent = 'Picked up \u{1F4E6}';
+    clientStatus.textContent = 'Picked up';
+    clientDistance.textContent = '1.4 km';
+    setOrderStep(2);
+
+    const startMs = Date.now();
+    const durationMs = 7000;
+    state.gpsInterval = setInterval(() => {
+      const elapsed = Date.now() - startMs;
+      const progress = Math.min(elapsed / durationMs, 1);
+      setGpsProgress(progress);
+      if (progress >= 1) {
+        clearInterval(state.gpsInterval);
+      }
+    }, 120);
+  }, 3000);
+
+  // Phase 3: delivered
+  setTimeout(() => {
+    statusText.textContent = 'Delivered \u2713';
+    statusText.classList.add('delivered');
+    clientStatus.textContent = 'Arriving now';
+    clientDistance.textContent = '0.1 km';
+    // Update earnings
+    const earn = document.getElementById('riderEarnings');
+    state.riderEarnings += 4.500;
+    earn.textContent = fmt(state.riderEarnings) + ' TND';
+    earn.classList.add('flash');
+    setTimeout(() => earn.classList.remove('flash'), 800);
+    setTimeout(() => {
+      clientStatus.textContent = 'Delivered';
+      clientDistance.textContent = '0.0 km';
+      setGpsProgress(1);
+      setOrderStep(3);
+      document.getElementById('outcomeRevenue').textContent = '+' + fmt(state.lastOrderTotal) + ' TND';
+      document.getElementById('outcomeRider').textContent = '+4.500 TND';
+      document.getElementById('outcomeCard').classList.add('visible');
+      clearInterval(state.countdownInterval);
+      document.getElementById('countdown').textContent = '00:00';
+      document.getElementById('replayBtn').classList.add('visible');
+    }, 900);
+  }, 10000);
+}
+
+/* ═══════════════════════════════════════════
+   DEMO MODE
+   ═══════════════════════════════════════════ */
+function startDemo() {
+  resetAll();
+  state.demoRunning = false;
+  document.getElementById('replayBtn').classList.remove('visible');
+  openMenu(0);
+}
+
+function startDemoSequence() {
+  // Auto open first restaurant
+  openMenu(0);
+  setTimeout(() => {
+    addItem(0, null);
+    setTimeout(() => addItem(1, null), 400);
+    setTimeout(() => {
+      placeOrder();
+    }, 1000);
+  }, 800);
+}
+
+// Manual start on load
+window.addEventListener('load', () => {
+  document.getElementById('replayBtn').classList.add('visible');
+  resetAll();
+  switchMobilePanel('customer');
+  applyResponsivePanelMode();
+});
+window.addEventListener('resize', applyResponsivePanelMode);
+
+// Update status bar clocks
+function updateClocks() {
+  const t = now24();
+  document.querySelectorAll('.status-bar .left').forEach(el => el.textContent = t);
+}
+setInterval(updateClocks, 30000);
+updateClocks();
+</script>
+</body>
+</html>
